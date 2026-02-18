@@ -5,7 +5,7 @@ const API_URL = '/api';
 let currentSessionId = null;
 
 // DOM elements
-let chatMessages, chatInput, sendButton, totalCourses, courseTitles;
+let chatMessages, chatInput, sendButton, totalCourses, courseTitles, newChatBtn;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton = document.getElementById('sendButton');
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
+    newChatBtn = document.getElementById('newChatBtn');
     
     setupEventListeners();
     createNewSession();
@@ -30,6 +31,20 @@ function setupEventListeners() {
     });
     
     
+    // New chat button
+    newChatBtn.addEventListener('click', createNewSession);
+
+    // Spin the + icon on click
+    newChatBtn.addEventListener('click', () => {
+        const icon = newChatBtn.querySelector('.new-chat-icon');
+        if (!icon) return;
+        icon.classList.remove('spinning');
+        // Force reflow so re-clicking restarts the animation
+        void icon.offsetWidth;
+        icon.classList.add('spinning');
+        icon.addEventListener('animationend', () => icon.classList.remove('spinning'), { once: true });
+    });
+
     // Suggested questions
     document.querySelectorAll('.suggested-item').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -122,10 +137,15 @@ function addMessage(content, type, sources = null, isWelcome = false) {
     let html = `<div class="message-content">${displayContent}</div>`;
     
     if (sources && sources.length > 0) {
+        const sourceHtml = sources.map(s =>
+            s.lesson_link
+                ? `<a href="${s.lesson_link}" target="_blank" rel="noopener noreferrer">${s.label}</a>`
+                : `<span>${s.label}</span>`
+        ).join('');
         html += `
             <details class="sources-collapsible">
                 <summary class="sources-header">Sources</summary>
-                <div class="sources-content">${sources.join(', ')}</div>
+                <div class="sources-content">${sourceHtml}</div>
             </details>
         `;
     }
@@ -147,6 +167,14 @@ function escapeHtml(text) {
 // Removed removeMessage function - no longer needed since we handle loading differently
 
 async function createNewSession() {
+    // Clean up old session on backend if one exists
+    if (currentSessionId) {
+        try {
+            await fetch(`${API_URL}/session/${currentSessionId}`, { method: 'DELETE' });
+        } catch (e) {
+            // Non-critical: proceed even if cleanup fails
+        }
+    }
     currentSessionId = null;
     chatMessages.innerHTML = '';
     addMessage('Welcome to the Course Materials Assistant! I can help you with questions about courses, lessons and specific content. What would you like to know?', 'assistant', null, true);
