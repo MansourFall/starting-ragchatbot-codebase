@@ -76,9 +76,20 @@ body {
   padding: 0;
 }
 
-/* Header - Hidden */
+/* Header */
 header {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
 }
 
 header h1 {
@@ -94,7 +105,7 @@ header h1 {
 .subtitle {
   font-size: 0.95rem;
   color: var(--text-secondary);
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 /* Main Content Area with Sidebar */
@@ -779,11 +790,15 @@ details[open] .suggested-header::before {
   }
 
   header {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
   }
 
   header h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
   }
 
   .chat-messages {
@@ -827,12 +842,9 @@ details[open] .suggested-header::before {
 
 /* Theme Toggle Button */
 .theme-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 1000;
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 1px solid var(--border-color);
   background: var(--theme-toggle-bg);
